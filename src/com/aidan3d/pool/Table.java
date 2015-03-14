@@ -17,64 +17,68 @@ import math.geom2d.Vector2D;
  */
 public class Table
 {
-    private final int xOrigin;              // The top-left origin point
-                                            // of the pool table
+    private final int xOrigin;                // The top-left origin point
+                                              // of the pool table
     
-    private final int yOrigin;              // In the calling object - a
-                                            // poolGame panel
+    private final int yOrigin;                // In the calling object:
+                                              // a poolGame panel
 
-    private final int ballRadius;           // The radius of a pool ball
-                                            // (i.e., 5.0 px)
+    private final int ballRadius;             // The radius of a pool ball
+                                              // (i.e., 5.0 px)
 
-    private final int tableSize;            // The width, and half of the
-                                            // de[tj of the pool table's
-                                            // playing surface; and half
-                                            // of the height (two squares
-                                            // maketh the baize-on-slate
-                                            // surface complete)
-                                            // i.e., 300.0 px wide would
-                                            //       be 600.0 px deep
+    private final int tableSize;              // The width, and half of the
+                                              // de[tj of the pool table's
+                                              // playing surface; and half
+                                              // of the height (two squares
+                                              // maketh the baize-on-slate
+                                              // surface complete)
+                                              // i.e., 300.0 px wide would
+                                              //       be 600.0 px deep
 
-    private final double pocketMultiplier;  // The "multiplier" we use
-                                            // to boost the ball's radius
-                                            // into a quarter of the "gap"
-                                            // between rails (the gap is
-                                            // nominally the product of
-                                            // two balls' diameters and
-                                            // the "pocketMultiplier"
-                                            // multiplier before the two
-                                            // jaws' radii are subtracted
-                                            // out)
+    private final double pocketMultiplier;    // The "multiplier" we use
+                                              // to boost the ball's radius
+                                              // into a quarter of the "gap"
+                                              // between rails (the gap is
+                                              // nominally the product of
+                                              // two balls' diameters and
+                                              // the "pocketMultiplier"
+                                              // multiplier before the two
+                                              // jaws' radii are subtracted
+                                              // out)
 
-    private final double jawMultiplier;     // The multiplier we use to
-                                            // augment the "jaws," or
-                                            // cushion "circles'" radii,
-                                            // e.g., if we set the
-                                            // "jawMultiplier" multiplier
-                                            // to 0.5, then a cushion
-                                            // circle's radius will be
-                                            // 0.5 * ballRadius for the
-                                            // radius of each "jaw"
-                                            // (i.e., 0.5 * 5.0 = 2.5px
-                                            // in our case)
+    private final double jawMultiplier;       // The multiplier we use to
+                                              // augment the "jaws," or
+                                              // cushion "circles'" radii,
+                                              // e.g., if we set the
+                                              // "jawMultiplier" multiplier
+                                              // to 0.5, then a cushion
+                                              // circle's radius will be
+                                              // 0.5 * ballRadius for the
+                                              // radius of each "jaw"
+                                              // (i.e., 0.5 * 5.0 = 2.5px
+                                              // in our case)
 
-    private final Color baize;              // The color of the table's
-                                            // felt playing-surface
-    
-    private final ArrayList<Ball> balls;    // Sixteen pool balls
+    private final Color baize;                // The color of the bed's
+                                              // playing-surface
 
-    private final ArrayList<Line> walls;    // The horizontal and
-                                            // vertical cushioned "rails"
+    private final ArrayList<Line> walls;      // The horizontal and
+                                              // vertical cushioned
+                                              // "rails"
 
-    private final ArrayList<Circle> jaws;   // The table's circular
-                                            // "bumpers" placed at the
-                                            // mouths of each pocket
+    private final ArrayList<Circle> jaws;     // The table's circular
+                                              // "bumpers" placed at the
+                                              // mouths of each pocket
 
     private final ArrayList<Circle> pockets;  // Pockets circles --
                                               // once a ball has
                                               // entered one of these
                                               // circles, its "pocketed"
                                               // flag is raised
+    
+    private final Rack balls;                 // All sixteen pool balls,
+                                              // including the cue ball,
+                                              // are in a list wrapped
+                                              // in a Rack object
 
     /**
      * The Four-argument constructor.
@@ -100,8 +104,6 @@ public class Table
                                             // (0/255, 51/255, 0/255):
                                             // baizeRGB = 0, 51, 0
         
-        balls = new ArrayList<>();
-
         walls = new ArrayList<>();          // Loaded inside defineWalls(),
                                             // called by defineTable()
         jaws = new ArrayList<>();
@@ -109,19 +111,15 @@ public class Table
         pockets = new ArrayList<>();        // An array of circles, with
                                             // centers and radii
 
+        balls = new Rack();                 // All sixteen balls
+        
         // Set up all six "cushion rails" and put circular "bumper"
         // cushions at the mouths of each "opening" or gap between
         // the rails.
         defineTable();
-        createBalls();
-    }
 
-    private void createBalls()
-    {
-        balls.add( new Ball(ballRadius, "0", 5.0F, new Vector2D( xOrigin + (tableSize / 2),
-                yOrigin + ( ( tableSize * 2 ) / 5 ) ), Color.white ) );
-        
-    } // end method createBalls
+    } // end six-argument constructor
+
 
     private void defineJaws()
     {
@@ -477,16 +475,11 @@ public class Table
 
         }  // end for
         
-        // Draw the balls.
-        for ( Ball ball : balls )
-        {
-            
-            dbg.drawOval( ( ( int )ball.getDisplacement().x() - ballRadius ),
-                ( ( int )ball.getDisplacement().y() - ballRadius ), ( ballRadius * 2 ),
-                ( ballRadius * 2 ) );
-            
-        } // end for
-        
+        // Draw the balls
+        // for ( Circle ball : balls.getBallsList() )
+        // {
+        // }
+
     }  // end method draw
     
 }  // end class Table
