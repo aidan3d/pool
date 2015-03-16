@@ -24,19 +24,19 @@ import java.awt.FontMetrics;
  */
 public class PoolPanel extends GamePanel
 {
-    private final int TABLE_WIDTH = 250;        // The pool table's width
-                                                // (and half of the depth)
+    private final int TABLE_WIDTH = 250;              // The pool table's width
+                                                      // (and half of the depth)
 
-    private final int BALL_RADIUS = 6;          // The pool balls' radii
+    private final int BALL_RADIUS = 6;                // The pool balls' radii
 
-    private final double POCKET_SIZE = 3.0F;    // A multiplier to adjust
-                                                // the pocket size
+    private final double POCKET_MULTIPLIER = 2.2F;    // A multiplier to adjust
+                                                      // the pocket size
 
-    private final double JAW_SIZE = 1.0F;       // A multiplier to adjust
-                                                // the jaw size (the
-                                                // "bumpers" forming the
-                                                // terminii of the pockets'
-                                                // mouths
+    private final double JAW_MULTIPLIER = 0.7F;       // A multiplier to adjust
+                                                      // the jaw size (the
+                                                      // "bumpers" forming the
+                                                      // terminii of the pockets'
+                                                      // mouths
 
 
     private final Font wpfont;
@@ -74,7 +74,7 @@ public class PoolPanel extends GamePanel
         
         // Build the pool table.
         poolTable = new Table( ( PWIDTH / 2 ) - ( TABLE_WIDTH / 2 ), ( PHEIGHT / 2 ) - TABLE_WIDTH,
-            TABLE_WIDTH, BALL_RADIUS,  POCKET_SIZE, JAW_SIZE );
+            TABLE_WIDTH, BALL_RADIUS,  POCKET_MULTIPLIER, JAW_MULTIPLIER );
         
         // Set up the message font.
         wpfont = new Font( "SansSerif", Font.BOLD, 12 );

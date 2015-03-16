@@ -17,9 +17,12 @@ import math.geom2d.Vector2D;
  */
 public class Table
 {
+    //<editor-fold defaultstate="collapsed" desc="Fields">
+    private final double BALL_MASS = 1.0;     // ALL balls' mass, in kg
+    
     private final int xOrigin;                // The top-left origin point
                                               // of the pool table
-    
+
     private final int yOrigin;                // In the calling object:
                                               // a poolGame panel
 
@@ -61,6 +64,9 @@ public class Table
     private final Color baize;                // The color of the bed's
                                               // playing-surface
 
+    private final ArrayList<Ball> balls;      // All sixteen balls in play
+                                              // (including the cue ball)
+
     private final ArrayList<Line> walls;      // The horizontal and
                                               // vertical cushioned
                                               // "rails"
@@ -74,12 +80,10 @@ public class Table
                                               // entered one of these
                                               // circles, its "pocketed"
                                               // flag is raised
-    
-    private final Rack balls;                 // All sixteen pool balls,
-                                              // including the cue ball,
-                                              // are in a list wrapped
-                                              // in a Rack object
+    //</editor-fold>
 
+
+    //<editor-fold defaultstate="collapsed"  desc="Constructor">
     /**
      * The Four-argument constructor.
      * @param x is the x-ordinate of the pool table's top-left origin
@@ -92,6 +96,7 @@ public class Table
      */
     public Table( int x, int y, int t, int r, double p, double j )
     {
+        //< editor-fold defaultstate="folded" desc = "Fields" >
         xOrigin = x;
         yOrigin = y;
         tableSize = t;
@@ -103,7 +108,9 @@ public class Table
                                             // baizeHSB = 120, 100, 20
                                             // (0/255, 51/255, 0/255):
                                             // baizeRGB = 0, 51, 0
-        
+
+        balls = new ArrayList<>();          // Loaded inside createBalls()
+
         walls = new ArrayList<>();          // Loaded inside defineWalls(),
                                             // called by defineTable()
         jaws = new ArrayList<>();
@@ -111,14 +118,135 @@ public class Table
         pockets = new ArrayList<>();        // An array of circles, with
                                             // centers and radii
 
-        balls = new Rack();                 // All sixteen balls
-        
+
         // Set up all six "cushion rails" and put circular "bumper"
         // cushions at the mouths of each "opening" or gap between
         // the rails.
         defineTable();
+        createBalls();
 
     } // end six-argument constructor
+    //</editor-fold>
+
+
+    //<editor-fold defaultstate="collapsed" desc="Operations">
+    /**
+     * This method loads (the cue ball is placed first, then
+     * we load the triangle or "rack" from the foot or apex,
+     * with black in the center of the "third-from-top" row)
+     * an array of sixteen balls: <br>
+     * &nbsp &nbsp a) one cue ball <br>
+     * &nbsp &nbsp b) seven "spots" or red balls <br>
+     * &nbsp &nbsp c) seven "stripes" or yellow balls <br>
+     * &nbsp &nbsp d) one black ball
+     */
+    private void createBalls()
+    {
+        double FLOAT_MULTIPLIER = 1.3F;       // Create a global constant
+                                              // referring to a small 2%-of-
+                                              // ball-radius "air apron"
+                                              // around each ball
+
+        double GAP = Math.pow( 3.0, 0.5 ) * ballRadius *       // The vertical
+            FLOAT_MULTIPLIER;                                  // distance
+                                                               // between our
+                                                               // rows of balls
+
+        // Create a "first position" for the player's
+        // cue ball.
+        Vector2D cueStart = new Vector2D( ( tableSize / 2.0 ) + xOrigin,
+            ( ( tableSize * 2.0 ) / 5 ) + yOrigin );
+
+
+        // Create a location on the game table for the apex
+        // or "foot" of the rack, or "triangle." Let's do
+        // math on doubles, then convert to int when we draw
+        // in the calling Jpanel-derived PoolPanel object.
+        Vector2D triStart = new Vector2D( ( tableSize / 2.0 ) + xOrigin,
+        ( tableSize * 1.5 ) + yOrigin );
+
+
+        // Add in the cue ball.
+        balls.add( new Ball(
+            ballRadius, 10.0F, "cue", cueStart, Color.white ) );
+
+        // Add the first "spotted" (i.e., red) ball to the foot or
+        // apex of the traingle; row 1, col. 1.
+        balls.add( new Ball( ballRadius, BALL_MASS, "1spot", triStart, Color.red) );
+
+        // Add the first "striped" (i.e., yellow) ball to the rack;
+        // row 2, col 1.
+        balls.add( new Ball( ballRadius, BALL_MASS, "1stripe", new Vector2D( ( triStart.x() - 
+            ( ballRadius * FLOAT_MULTIPLIER ) ), triStart.y() + GAP ), Color.yellow ) );
+
+        // Rack the second "striped" ball;
+        // row 3, col 2.
+        balls.add( new Ball( ballRadius, BALL_MASS, "2stripe", new Vector2D( ( triStart.x() +
+            ( ballRadius * FLOAT_MULTIPLIER ) ), triStart.y() + GAP ), Color.yellow ) );
+
+        // Rack the second "spotted" ball;
+        // row 3, col 1
+        balls.add( new Ball( ballRadius, BALL_MASS, "2spot", new Vector2D( ( triStart.x() -
+            ( 2 * ( ballRadius * FLOAT_MULTIPLIER ) ) ), triStart.y() + ( 2 * GAP ) ), Color.red ) );
+
+        // Rack the black ball;
+        // row 3, col 2.
+        balls.add( new Ball( ballRadius, BALL_MASS, "black", new Vector2D( triStart.x(),
+            ( triStart.y() + ( 2 * GAP ) ) ),  Color.black  ) );
+
+        // Rack the third "spotted" ball;
+        // row 3, col 3.
+        balls.add( new Ball( ballRadius, BALL_MASS, "3spot", new Vector2D( ( triStart.x() +
+            ( 2 * ( ballRadius * FLOAT_MULTIPLIER ) ) ), ( triStart.y() + ( 2 * GAP ) ) ), Color.red ) );
+
+        // Rack the third "striped" ball;
+        // row 4, col 1.
+        balls.add( new Ball( ballRadius, BALL_MASS, "3stripe", new Vector2D ( ( triStart.x() -
+            ( 3 * ( ballRadius * FLOAT_MULTIPLIER ) ) ), ( triStart.y() + ( 3 * GAP ) ) ), Color.yellow ) );
+
+        // Add the fourth "striped" ball;
+        // row 4, col 2.
+        balls.add( new Ball( ballRadius, BALL_MASS, "4stripe", new Vector2D( ( triStart.x() -
+            ( ( ballRadius * FLOAT_MULTIPLIER  ) ) ), ( triStart.y() + ( 3 * GAP ) ) ), Color.yellow ) );
+
+        // Add the fourth "spotted" ball;
+        // row 4, col 3.
+        balls.add( new Ball( ballRadius, BALL_MASS, "4spot", new Vector2D( ( triStart.x() +
+            ( ballRadius * FLOAT_MULTIPLIER ) ), ( triStart.y() + ( 3 * GAP ) )), Color.red ) );
+
+        // Add the fifth "striped" ball;
+        // row 4, col 4.
+        balls.add( new Ball( ballRadius, BALL_MASS, "5stripe", new Vector2D( ( triStart.x() +
+            (3 * ( ballRadius * FLOAT_MULTIPLIER)  ) ), ( triStart.y() + ( 3 * GAP ) ) ), Color.yellow ) );
+        
+        // Add the fifth "spotted" ball;
+        // row 5, col 1.
+        balls.add( new Ball( ballRadius, BALL_MASS, "5spot", new Vector2D( ( triStart.x() -
+            ( 4 * ( ballRadius * FLOAT_MULTIPLIER ) ) ), ( triStart.y() + ( 4 * GAP ) ) ), Color.red ) );
+        
+        // Add the sixth "striped" ball;
+        // row 5, col 2.
+        balls.add( new Ball( ballRadius, BALL_MASS, "4stripe", new Vector2D( ( triStart.x() -
+            ( 2 * ( ballRadius * FLOAT_MULTIPLIER ) ) ), ( triStart.y() + ( 4 * GAP ) ) ), Color.yellow ) );
+        
+        // Add the sixth "spotted" ball;
+        // row 5, col 3.
+        balls.add( new Ball( ballRadius, BALL_MASS, "6spot", new Vector2D( ( triStart.x() ),
+            ( triStart.y() + ( 4 * GAP ) ) ), Color.red )  );
+        
+        // Add the seventh "striped" ball;
+        // row 5, col 4.
+        balls.add( new Ball( ballRadius, BALL_MASS, "7stripe", new Vector2D( ( triStart.x() +
+            ( 2 * (ballRadius * FLOAT_MULTIPLIER ) ) ), ( triStart.y() + ( 4 * GAP ) ) ), Color.yellow ) );
+        
+        // Add the seventh "spotted" ball;
+        // row 5, col 5.
+        balls.add( new Ball(ballRadius, BALL_MASS, "7spot", new Vector2D( ( triStart.x() +
+            ( 4 * ( ballRadius * FLOAT_MULTIPLIER ) ) ),( triStart.y() + ( 4 * GAP ) ) ), Color.red ) );
+        
+        
+
+    } //end method createBalls
 
 
     private void defineJaws()
@@ -240,14 +368,7 @@ public class Table
                                                                    // object)
         
         double jawRadius = ballRadius * jawMultiplier;
-        
-        double cornerJawRotationExtension = Math.pow( 2.0, -0.5 ) * // Allow for
-                ( ballRadius * jawMultiplier );                     // poor
-                                                                    // placement
-                                                                    // of the
-                                                                    // corner
-                                                                    // jaws
-        
+
 
         // Get the left-hand side-pocket.
         for ( Line wall : walls )
@@ -302,14 +423,16 @@ public class Table
                 pockets.add( new Circle(
                     new Vector2D( wall.getStart().x() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ) ,  // center x
                     wall.getStart().y() - ( Math.pow(2.0, -0.5) * ( pocketClearRadius - jawRadius ) ) ),                 // center y
-                    pocketClearRadius - jawRadius + cornerJawRotationExtension ) );  // The corner pocket's radius
+                    pocketClearRadius - ( jawRadius / 2 ) ) );  // The corner pocket is
+                                                                // slightly larger than
+                                                                // a typical side pocket
 
                 
                 // 2. BOTTOM-RIGHT POCKET
                 pockets.add( new Circle(
                     new Vector2D( wall.getEnd().x() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getEnd().y() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - jawRadius + cornerJawRotationExtension ) );
+                    pocketClearRadius - ( jawRadius / 2 ) ) );
                 
             } // end third if-then
             
@@ -320,13 +443,13 @@ public class Table
                 pockets.add( new Circle(
                     new Vector2D( wall.getStart().x() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getStart().y() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - jawRadius + cornerJawRotationExtension ) );
+                    pocketClearRadius - ( jawRadius / 2 ) ) );
                 
                 // 4. TOP-RIGHT POCKET.
                 pockets.add( new Circle(
                     new Vector2D( wall.getEnd().x() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getEnd().y() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - jawRadius + cornerJawRotationExtension ) );
+                    pocketClearRadius - ( jawRadius / 2 ) ) );
             
             } //end fourth if-then
 
@@ -352,20 +475,22 @@ public class Table
         // we have a top and bottom gap.
         double pocketGapVertical = ballRadius * pocketMultiplier;
         
-
-        
         // For convenience. The horizontal gap at the
         // top/beginning and ending points of the north
         // and south horizontal rails and the vertical
         // gap at the start and ending points of the two
         // pairs of vertical rails
-        double pocketGapDiagonal = ballRadius * Math.pow( 2.0, 0.5 )
-            * pocketMultiplier;             // The square root of two
-                                            // multiplied by the
-                                            // pocketMultiplier multiplier
-                                            // yields the correct diagonal
-                                            // gap
-                                            // (2 * ballRadius * pocketMultiplier)
+        double pocketGapDiagonal = ( ballRadius * ( Math.pow( 2.0, 0.5 )
+            * pocketMultiplier ) );                 // The square root of two
+                                                    // multiplied by the
+                                                    // pocketMultiplier
+                                                    // multiplier yields the
+                                                    // correct diagonal
+                                                    // gap
+                                                    // (2 * ballRadius * pocketMultiplier)
+        
+        
+                                                        
         
         
 
@@ -464,7 +589,7 @@ public class Table
                 ( int )jaw.getRadius()*2, ( int )jaw.getRadius()*2 );
             
         }  // end for
-        
+
         // Draw the pockets.
         for ( Circle pocket : pockets )
         {
@@ -473,13 +598,24 @@ public class Table
                 ( int )( pocket.getCenter().y()-pocket.getRadius() ),
                 ( int ) pocket.getRadius()*2, ( int )pocket.getRadius()*2 ); // shift ovals
 
-        }  // end for
+        } // end for
         
-        // Draw the balls
-        // for ( Circle ball : balls.getBallsList() )
-        // {
-        // }
+        // Draw the balls.
+        for ( Ball ball : balls )
+        {
+            // The new disc will be the color of the current ball.
+            dbg.setColor( ball.getColor() );
+            
+            // Draw the disc at the ball's location on the table.
+            dbg.drawOval(
+            ( int )( ball.getDisplacement().x() - ball.getRadius() ),
+            ( int )( ball.getDisplacement().y() - ball.getRadius() ),
+            ( int )( 2 * ball.getRadius() ),
+            ( int )( 2 * ball.getRadius() ) );
+            
+        } // end for
 
     }  // end method draw
-    
+    //</editor-fold>
+
 }  // end class Table
