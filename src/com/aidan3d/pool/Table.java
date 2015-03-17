@@ -20,6 +20,8 @@ public class Table
     //<editor-fold defaultstate="collapsed" desc="Fields">
     private final double BALL_MASS = 1.0;     // ALL balls' mass, in kg
     
+    private boolean moving;
+    
     private final int xOrigin;                // The top-left origin point
                                               // of the pool table
 
@@ -60,6 +62,11 @@ public class Table
                                               // radius of each "jaw"
                                               // (i.e., 0.5 * 5.0 = 2.5px
                                               // in our case)
+    
+    private final double friction;            // Effectively the coefficient
+                                              // of restitution for the
+                                              // pool table's bed. It reduces
+                                              // the speed of the ball
 
     private final Color baize;                // The color of the bed's
                                               // playing-surface
@@ -85,7 +92,7 @@ public class Table
 
     //<editor-fold defaultstate="collapsed"  desc="Constructor">
     /**
-     * The Four-argument constructor.
+     * The seven-argument constructor.
      * @param x is the x-ordinate of the pool table's top-left origin
      * @param y is the y-ordinate of the pool table's top-left origin
      * @param t is the width of the table, as well as half of the length
@@ -93,8 +100,9 @@ public class Table
      * @param r is the size of a pool ball
      * @param p is the pocketMultiplier multiplier
      * @param j is the jawMultiplier multiplier
+     * @param f is the "de-accelerating" friction between ball and bed
      */
-    public Table( int x, int y, int t, int r, double p, double j )
+    public Table( int x, int y, int t, int r, double p, double j, double f )
     {
         //< editor-fold defaultstate="folded" desc = "Fields" >
         xOrigin = x;
@@ -103,6 +111,8 @@ public class Table
         ballRadius = r;
         pocketMultiplier = p;
         jawMultiplier = j;
+        friction = f;
+        moving = false;
 
         baize = new Color( 0, 0.2f, 0 );    // (0.0F, 0.392F, 0.078F):
                                             // baizeHSB = 120, 100, 20
@@ -124,12 +134,29 @@ public class Table
         // the rails.
         defineTable();
         createBalls();
+        
+        // Let's set the cue ball in motion!
+        balls.get(0).setVelocity( new Vector2D( 0.0, 5.0) );
+        
+        // Fake out the "moving" tool!
+        moving = true;
 
-    } // end six-argument constructor
+    } // end seven-argument constructor
     //</editor-fold>
 
 
     //<editor-fold defaultstate="collapsed" desc="Operations">
+    
+    /**
+     * Lets the calling (PoolPanel object) object know
+     * whether or not it should update the "field of battle."
+     * @return a terminal condition - whether or not any
+     * of the balls are moving
+     */
+    public boolean ballsAreMoving()
+    {
+        return moving;
+    }
     /**
      * This method loads (the cue ball is placed first, then
      * we load the triangle or "rack" from the foot or apex,
@@ -277,20 +304,20 @@ public class Table
                     // remains untouched.
                     jaws.add(
                         new Circle( new Vector2D(
-                        wall.getStart().x()-jawRadius, wall.getStart().y() ), jawRadius ) );
+                        wall.getStart().x()-jawRadius, wall.getStart().y() ), jawRadius, 0.0 ) );
                     
                     jaws.add(
                         new Circle( new Vector2D(
-                        wall.getEnd().x()-jawRadius, wall.getEnd().y() ), jawRadius ) );
+                        wall.getEnd().x()-jawRadius, wall.getEnd().y() ), jawRadius, 0.0 ) );
                 }
                 else  // The top left-hand vertical rail
                 {
                     jaws.add(
                         new Circle( new Vector2D(
-                        wall.getStart().x()-jawRadius, wall.getStart().y()), jawRadius ) );
+                        wall.getStart().x()-jawRadius, wall.getStart().y()), jawRadius, 0.0 ) );
                     
                     jaws.add( new Circle( new Vector2D(
-                        wall.getEnd().x()-jawRadius, wall.getEnd().y()), jawRadius ) );
+                        wall.getEnd().x()-jawRadius, wall.getEnd().y()), jawRadius, 0.0 ) );
                 
                 } // end nested if-then-else
             }
@@ -307,10 +334,10 @@ public class Table
                     // Create jaws at the current  wall's start and end points.
                     jaws.add( new Circle(
                         new Vector2D(
-                        wall.getStart().x()+jawRadius, wall.getStart().y() ), jawRadius ) );
+                        wall.getStart().x()+jawRadius, wall.getStart().y() ), jawRadius, 0.0 ) );
                     jaws.add(new Circle(
                         new Vector2D(
-                        wall.getEnd().x()+jawRadius, wall.getEnd().y()), jawRadius));
+                        wall.getEnd().x()+jawRadius, wall.getEnd().y()), jawRadius, 0.0 ));
                 }
 
                 // We are on the bottom right-hand vertical rail.
@@ -318,9 +345,9 @@ public class Table
                 { 
                     jaws.add( new Circle(
                         new Vector2D(
-                        wall.getStart().x()+jawRadius, wall.getStart().y()), jawRadius ));
+                        wall.getStart().x()+jawRadius, wall.getStart().y()), jawRadius, 0.0 ));
                     jaws.add( new Circle(new Vector2D(wall.getEnd().x()+jawRadius,
-                        wall.getEnd().y()), jawRadius ) );
+                        wall.getEnd().y()), jawRadius, 0.0 ) );
                 
                 } // end nested if-then-else
                 
@@ -332,10 +359,10 @@ public class Table
             {
                 jaws.add( new Circle(
                     new Vector2D(
-                    wall.getStart().x(), wall.getStart().y()-jawRadius ), jawRadius ) );
+                    wall.getStart().x(), wall.getStart().y()-jawRadius ), jawRadius, 0.0 ) );
                 jaws.add(new Circle(
                     new Vector2D(
-                    wall.getEnd().x(), wall.getEnd().y()-jawRadius ), jawRadius ) );
+                    wall.getEnd().x(), wall.getEnd().y()-jawRadius ), jawRadius, 0.0 ) );
             }
 
             // The default case: must have the bottom horizontal rail!
@@ -343,11 +370,11 @@ public class Table
             {
                 jaws.add( new Circle(
                     new Vector2D(
-                    wall.getStart().x(), wall.getStart().y()+jawRadius), jawRadius ) );
+                    wall.getStart().x(), wall.getStart().y()+jawRadius), jawRadius, 0.0 ) );
                 
                 jaws.add(new Circle(
                     new Vector2D(
-                    wall.getEnd().x(), wall.getEnd().y()+jawRadius), jawRadius ) );
+                    wall.getEnd().x(), wall.getEnd().y()+jawRadius), jawRadius, 0.0 ) );
             
             } // end if-then-else-if
             
@@ -384,7 +411,7 @@ public class Table
                         new Vector2D(
                         new Point2D( wall.getStart().x() - jawRadius,
                         wall.getStart().y() - pocketClearRadius ) ),
-                        pocketClearRadius - jawRadius ) );
+                        ( pocketClearRadius - jawRadius ), 0.0 ) );
 
                 } // end nested if-then
 
@@ -401,7 +428,7 @@ public class Table
                     pockets.add( new Circle(
                         new Vector2D( wall.getStart().x() + jawRadius,
                         wall.getStart().y() - pocketClearRadius ),
-                        pocketClearRadius - jawRadius ) );
+                        pocketClearRadius - jawRadius, 0.0 ) ); // jaws have no mass
                 
                 } //end nested if-then
 
@@ -423,16 +450,16 @@ public class Table
                 pockets.add( new Circle(
                     new Vector2D( wall.getStart().x() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ) ,  // center x
                     wall.getStart().y() - ( Math.pow(2.0, -0.5) * ( pocketClearRadius - jawRadius ) ) ),                 // center y
-                    pocketClearRadius - ( jawRadius / 2 ) ) );  // The corner pocket is
-                                                                // slightly larger than
-                                                                // a typical side pocket
+                    pocketClearRadius - ( jawRadius / 2 ), 0.0 ) );  // The corner pocket is
+                                                                     // slightly larger than
+                                                                     // a typical side pocket
 
                 
                 // 2. BOTTOM-RIGHT POCKET
                 pockets.add( new Circle(
                     new Vector2D( wall.getEnd().x() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getEnd().y() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - ( jawRadius / 2 ) ) );
+                    pocketClearRadius - ( jawRadius / 2 ), 0.0 ) );
                 
             } // end third if-then
             
@@ -443,13 +470,13 @@ public class Table
                 pockets.add( new Circle(
                     new Vector2D( wall.getStart().x() - ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getStart().y() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - ( jawRadius / 2 ) ) );
+                    pocketClearRadius - ( jawRadius / 2 ), 0.0 ) );
                 
                 // 4. TOP-RIGHT POCKET.
                 pockets.add( new Circle(
                     new Vector2D( wall.getEnd().x() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius + jawRadius ) ),
                     wall.getEnd().y() + ( Math.pow( 2.0, -0.5 ) * ( pocketClearRadius - jawRadius ) ) ),
-                    pocketClearRadius - ( jawRadius / 2 ) ) );
+                    pocketClearRadius - ( jawRadius / 2 ), 0.0 ) );
             
             } //end fourth if-then
 
@@ -608,14 +635,58 @@ public class Table
             
             // Draw the disc at the ball's location on the table.
             dbg.drawOval(
-            ( int )( ball.getDisplacement().x() - ball.getRadius() ),
-            ( int )( ball.getDisplacement().y() - ball.getRadius() ),
+            ( int )( ball.getCenter().x() - ball.getRadius() ),
+            ( int )( ball.getCenter().y() - ball.getRadius() ),
             ( int )( 2 * ball.getRadius() ),
             ( int )( 2 * ball.getRadius() ) );
             
         } // end for
 
     }  // end method draw
-    //</editor-fold>
 
+
+    /**
+     * This method calculates motion whilst the moving flag
+     * is set to true.
+     */
+    public void move()
+    {      
+        for (Ball b : balls)
+        {
+            b.move();
+
+        } // end for
+
+    } //end method move
+    
+    public void update()
+    {
+        for ( Ball outerBall : balls ) // outer loop begin
+        {           
+            // Check the outerBall with all innerBalls
+            // (except itself, of course!)
+            for ( Ball innerBall : balls ) // inner loop begin
+            {
+                // Check whether we are referencing
+                // the same ball.
+                if (!outerBall.equals(innerBall)) 
+                {
+                    if ( outerBall.isHitByCircle( innerBall ) )
+                    {
+                        outerBall.setVelocity( new Vector2D( 0.0, 0.0 ) ); // Hacky, but does the job
+
+                        moving = false;  // ***Altering a class
+                                         // variable, here ***
+
+                    } // end inner-nested if-then
+
+                } // end outer nested if-tehn
+
+            } // end inner for loop
+
+        } // end outer for loop
+
+    } // end method update
+    
+    // </editor-fold>
 }  // end class Table

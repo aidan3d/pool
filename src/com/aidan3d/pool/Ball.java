@@ -13,7 +13,7 @@ import math.geom2d.Vector2D;
  * This class is effectively the Ball "sprite."
  * 
  */
-class Ball
+class Ball extends Circle
 {
     private boolean moving;                         // A signal flag: raised
                                                     // if the ball is in motion
@@ -21,16 +21,17 @@ class Ball
     private boolean pocketed;                       // A signal flag: raised
                                                     // if the ball is "sunk"
     
-    private int radius;                             // The ball's visual radius
+    private boolean hit;                            // A signal falg: raised
+                                                    // when the ball detects
+                                                    // a foreign object in
+                                                    // its "airspace" or
+                                                    // collision envelope
+    
 
     private double mass;                            // Needed for collision
                                                     // detection (k.e.)
 
     private String id;                              // A human-readable label
-
-    private Vector2D displacement;
-
-    private Vector2D velocity;
 
     private Color color;
 
@@ -40,13 +41,11 @@ class Ball
      */
     public Ball()
     {
+        super(new Vector2D(0.0, 0.0 ), 0.0, 0.0 );
         moving = false;
         pocketed = false;
-        radius = 0;
         mass = 0.0F;
         id = "";
-        displacement = new Vector2D();
-        velocity = new Vector2D();
         color = Color.white;
     }
 
@@ -56,11 +55,11 @@ class Ball
      */
     public Ball(int r, double m, String name, Vector2D d, Color c)
     {
-        radius = r;
+        super( d, r, m );
+        moving = false;
+        pocketed = false;
         mass = m;
         id = name;
-        displacement = d;
-        pocketed = false;
         color = c;
 
     } // end five-argument constuctor
@@ -76,37 +75,52 @@ class Ball
         return color;
 
     } // end method getColor
-
-
-    /**
-     * This method retrieves the value referred to
-     * by the Vector2D object "displacement."
-     * @return the <b>Vector2D</b> object referred to by the instance variable "displacement
-     * @see math.geom2d.Vector2D
-     */
-    public Vector2D getDisplacement()
-    {
-        return displacement;
-        
-    } // end method getDisplacement
     
-
+    
     /**
-     * 
-     * @return the value referred to by the instance variable
-     * "displacement" (a <b>Vector2D</b> object)
-     * @see math.geom2d.Vector2D
+     * Let's find out if any of the balls
+     * are in motion (the calling object
+     * uses this as a flag to stop
+     * updating and run the next "shot."
+     * @return 
      */
-    public double getRadius()
+    public boolean isMoving()
     {
-        return radius;
+        return moving;
+    }
+    
+    /**
+     * Once  a balls "state" is pocketed,
+     * it stays that way for the rest of
+     * the game.
+     */
+    public boolean isPocketed()
+    {
+        boolean status = false;  // A signal flag, raised when either
+                                 // a ball <-> pocket or a ball <->
+                                 // cushion-rail collision have been
+                                 // flagged
         
-    } // end method getRadius
+        // Check whether the ball is in play
+        // on very call to the ball's upate()
+        // method on each loop of the physics
+        // engine.
+        if ( pocketed )
+        {
+            status = true;
+        }
+        
+        return status;
+        
+    } // end isPocketed
 
 
     /**
      * This is the traction method for the Ball object.
+     * Rolls in after the ball's update() method to
+     * place the ball in new place in the game window.
      */
+    @Override
     public void move()
     {
         // Velocity is effectively the number of
@@ -114,8 +128,16 @@ class Ball
         // move when this function is called for
         // in each gameUpdate cycle (i.e., px is
         // a great start).
-        displacement = displacement.plus(velocity);
+        center = center.plus(velocity);
 
     } // end method move
+
+
+    @Override
+    public String toString()
+    {
+                return id;
+    
+    } //end method toString
 
 } // end class Ball

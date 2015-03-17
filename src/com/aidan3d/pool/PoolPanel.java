@@ -18,7 +18,8 @@ import java.awt.FontMetrics;
  * class, adding in a few fields specific to <i>Pool</i>.<br>
  * A <b>Table</b> object is created within the panel, which
  * represents the playing surface with a few "obstacles" (cushions)
- * throw in for good measure!<br>
+ * throw in for good measure! A pocket is a desirable collision
+ * targets.<br>
  * A <b>PoolPanel</b> object's "management-level" job is to set up
  * the game components and initialize the timing system.
  */
@@ -37,6 +38,12 @@ public class PoolPanel extends GamePanel
                                                       // "bumpers" forming the
                                                       // terminii of the pockets'
                                                       // mouths
+    
+    private final double BED_FRICTION = 0.1F;         // Effectively, the
+                                                      // coefficient of
+                                                      // restitution between
+                                                      // ball and baize
+
 
 
     private final Font wpfont;
@@ -45,9 +52,11 @@ public class PoolPanel extends GamePanel
 
 
     /**
-     * The no-argument constructor. It calls the two-argument constructor, pas<br>
+     * The no-argument constructor. It calls the two-argument
+     * constructor, pas<br>
      * passing it a null reference to a <b>Pool</b> object, and a long int,
-     * initialized to 0.
+     * initialized to 0 (we refer it to a variable in the superclass (a
+     * GamePanel object).
      */
     public PoolPanel()
     {
@@ -74,7 +83,7 @@ public class PoolPanel extends GamePanel
         
         // Build the pool table.
         poolTable = new Table( ( PWIDTH / 2 ) - ( TABLE_WIDTH / 2 ), ( PHEIGHT / 2 ) - TABLE_WIDTH,
-            TABLE_WIDTH, BALL_RADIUS,  POCKET_MULTIPLIER, JAW_MULTIPLIER );
+            TABLE_WIDTH, BALL_RADIUS,  POCKET_MULTIPLIER, JAW_MULTIPLIER, BED_FRICTION );
         
         // Set up the message font.
         wpfont = new Font( "SansSerif", Font.BOLD, 12 );
@@ -89,9 +98,7 @@ public class PoolPanel extends GamePanel
      * to set up game objects.
      */
     @Override
-    public void customizeInit()
-    {
-    } // end method customizeInit
+    public void customizeInit() {}
 
 
     /**
@@ -117,7 +124,7 @@ public class PoolPanel extends GamePanel
             dbg.drawString( "Average FPS/UPS: " + df.format( getAverageFPS() ) + "/"
                     + df.format( getAverageUPS() ), 20, 25 );
 
-            // Display a basic representation of a pool table.
+            // Display a basic representation of the pool table.
             poolTable.draw( dbg );
 
         } // end if-then
@@ -135,10 +142,24 @@ public class PoolPanel extends GamePanel
     @Override
     public void customizeGameUpdate()
     {
-        // Let the user know that we are
-        // in the customizeGameUpdate() method
-        System.out.println( "Update game state" );
-        
+        // Check whether anything actually needs
+        // to be done, based on all balls having
+        // stopped moving
+        if ( poolTable.ballsAreMoving() )
+        {
+            
+            // Let the user know that we are
+            // updating the game state:
+            System.out.println( "Updating..." );
+            // Update velocities of all balls, and thusly
+            // update the displacement points of all balls.
+            poolTable.update();
+
+            // Throw the balls around on the baize.
+            poolTable.move();
+            
+        } // end if-then
+
     } // end method customizeGameUpdate
 
 
@@ -148,9 +169,7 @@ public class PoolPanel extends GamePanel
      * "move-update" cycle runner)
      */
     @Override
-    protected void preGameLoop()
-    {
-    } // end method preGameLoop
+    protected void preGameLoop() {}
 
 
     /**
@@ -158,9 +177,7 @@ public class PoolPanel extends GamePanel
      * the game loop.
      */
     @Override
-    protected void insideGameLoop()
-    {
-    } // end method insideGameLoop
+    protected void insideGameLoop() {}
 
 
     /**
@@ -170,8 +187,6 @@ public class PoolPanel extends GamePanel
      * <i>"You've Won!"</i> might be displayed.
      */
     @Override
-    protected void postGameLoop()
-    {
-    } // end method postGameLoop
+    protected void postGameLoop() {}
     
 } //end class PoolPanel

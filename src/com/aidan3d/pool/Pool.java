@@ -8,12 +8,13 @@ package com.aidan3d.pool;
 /**
  * This class inherits functionality from Swing's
  * <b>JFrame</b> class. Basically, it draws a pool
- * table to screen on which sit fifteen balls and
+ * table to screen on which sixteen balls and
  * a pool cue.
  * @see javax.swing.JFrame
  */
-public class Pool extends javax.swing.JFrame {
-    private static final int DEFAULT_FPS = 32;  // the frame rate
+public class Pool extends javax.swing.JFrame
+{
+    private static final int DEFAULT_FPS = 30;  // the frame rate
     private static long period;
 
 
@@ -21,10 +22,12 @@ public class Pool extends javax.swing.JFrame {
      * This is the <i>PlanetSim</i> no-argument constructor.
      * @returns a new PlanetSim JFrame-derived object
      */
-    public Pool() {
+    public Pool()
+    {
         // set up the Swing gui components
         initComponents();
-    }
+
+    } // end no-argument constructor
 
 
     /**
@@ -32,9 +35,11 @@ public class Pool extends javax.swing.JFrame {
      * the operations set to occur on a 'resume.'
      * @param e event delegate of the heavyweight AWT system.
      */
-    public void windowActivated(java.awt.event.WindowEvent e) {
+    public void windowActivated(java.awt.event.WindowEvent e)
+    {
         ((PoolPanel)poolGame).resumeGame();
-    }
+
+    } // end method windowActivated
 
 
     /**
@@ -42,24 +47,31 @@ public class Pool extends javax.swing.JFrame {
      * system of a "pause" being triggered by the player.
      * @param e event delegate of the AWT system 
      */
-    public void windowDeactivated(java.awt.event.WindowEvent e) {
+    public void windowDeactivated(java.awt.event.WindowEvent e)
+    {
         ((PoolPanel)poolGame).pauseGame();
-    }
+
+    } // end method windowDeactivated
+
 
     /**
      * @param e Event delegate
      */
-    public void windowDeiconified(java.awt.event.WindowEvent e) {
+    public void windowDeiconified(java.awt.event.WindowEvent e)
+    {
         ((PoolPanel)poolGame).resumeGame();
-    }
-    
-    
+
+    } // end method windowDeiconified
+
+
     /**
      * @param e Event delegate
      */
-    public void windowIconified(java.awt.event.WindowEvent e) {
+    public void windowIconified(java.awt.event.WindowEvent e)
+    {
         ((PoolPanel)poolGame).pauseGame();
-    }
+
+    } // end method windowIconified
 
 
     /**
@@ -68,9 +80,12 @@ public class Pool extends javax.swing.JFrame {
      * button was clicked.
      * @param e event delegate (heavyweight)
      */
-    public void windowClosing(java.awt.event.WindowEvent e) {
+    public void windowClosing(java.awt.event.WindowEvent e)
+    {
         ((PoolPanel)poolGame).stopGame();
-    }
+
+    } // end method windowClosing
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -124,14 +139,19 @@ public class Pool extends javax.swing.JFrame {
      * This method is the <i>Pool</i> game's start point.
      * @param args <b>String</b> array - the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[])
+    {
         int fps = DEFAULT_FPS;  // set as a default, or in the command-line-
                                 // parameter if run from the command line
 
-        // check the parameter received from the command
+        // Check the parameter received from the command
         // line (if any); if it's there, use it!
         if (args.length != 0)
+        {
             fps = Integer.parseInt(args[0]);
+        
+        }
+
 
         // "period" holds the time-for-a-frame in milliseconds
         period = (long)1000.0/fps;
