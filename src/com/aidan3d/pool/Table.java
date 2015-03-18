@@ -136,7 +136,7 @@ public class Table
         createBalls();
         
         // Let's set the cue ball in motion!
-        balls.get(0).setVelocity( new Vector2D( 0.0, 5.0) );
+        balls.get(0).setVelocity( new Vector2D( -1.0, 1.0) ); // 1 pixel per frame
         
         // Fake out the "moving" tool!
         moving = true;
@@ -157,6 +157,73 @@ public class Table
     {
         return moving;
     }
+
+
+    /**
+     * This method runs through all sixteen
+     * in-play (i.e., on the table) balls
+     * looking for a hit with another ball.
+     */
+    private void collisionsWithBalls()
+    {
+        // Run through all sixteen balls, looking
+        // for hits with other balls.
+        for ( Ball outerBall : balls ) // outer loop begin
+        {           
+            // Check the outerBall with all innerBalls
+            // (except itself, of course!)
+            for ( Ball innerBall : balls ) // inner loop begin
+            {
+                // Check whether we are referencing
+                // the same ball.
+                if (!outerBall.equals(innerBall)) 
+                {
+                    if ( outerBall.isHitByCircle( innerBall ) )
+                    {
+                        outerBall.setVelocity( new Vector2D( 0.0, 0.0 ) ); // Hacky, but does the job
+
+                    } // end inner-nested if-then
+
+                } // end outer nested if-tehn
+
+            } // end inner for loop
+
+        } // end outer for loop
+
+    } //end method collisionsWithBalls
+
+    
+    /**
+     * Run through all balls in play,
+     * checking for hits with cushion
+     * rails.
+     */
+    private void collisionsWithWalls()
+    {
+        for ( Ball b : balls )
+        {
+            for (Line w : walls)
+            {
+                if ( b.isHitByLine( w ) )
+                {
+                    
+                    double preHitX = b.getVelocity().x();
+                    double preHitY = b.getVelocity().y();
+                    
+                    b.setVelocity( new Vector2D( new Point2D( b.getVelocity().x()*-1, b.getVelocity().y() ) ) );
+                    
+                    break; // stop looping through the
+                           // list of walls (we can only
+                           // hit one at a time!)
+                } // end if-then
+            
+            } // end inner for loop
+
+        } // end outer for loop
+    
+    } // end method collisionsWithWalls
+    
+    
     /**
      * This method loads (the cue ball is placed first, then
      * we load the triangle or "rack" from the foot or apex,
@@ -661,30 +728,17 @@ public class Table
     
     public void update()
     {
-        for ( Ball outerBall : balls ) // outer loop begin
-        {           
-            // Check the outerBall with all innerBalls
-            // (except itself, of course!)
-            for ( Ball innerBall : balls ) // inner loop begin
-            {
-                // Check whether we are referencing
-                // the same ball.
-                if (!outerBall.equals(innerBall)) 
-                {
-                    if ( outerBall.isHitByCircle( innerBall ) )
-                    {
-                        outerBall.setVelocity( new Vector2D( 0.0, 0.0 ) ); // Hacky, but does the job
-
-                        moving = false;  // ***Altering a class
-                                         // variable, here ***
-
-                    } // end inner-nested if-then
-
-                } // end outer nested if-tehn
-
-            } // end inner for loop
-
-        } // end outer for loop
+        // Check for collisions between
+        // all balls in play.
+        // collisionsWithBalls();
+        
+        
+        // Check for collisions between
+        // all balls in play and the
+        // cushion rails
+        collisionsWithWalls();
+        
+        // collisionsWithPockets();
 
     } // end method update
     

@@ -49,6 +49,9 @@ public class PoolPanel extends GamePanel
     private final Font wpfont;
     private final FontMetrics metrics;
     private final Table poolTable;
+    
+    long poolGameStartTime;
+    long poolGameTimeSpentInGame;
 
 
     /**

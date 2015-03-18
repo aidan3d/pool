@@ -7,14 +7,17 @@ package com.aidan3d.pool;
 
 /**
  * This class inherits functionality from Swing's
- * <b>JFrame</b> class. Basically, it draws a pool
- * table to screen on which sixteen balls and
- * a pool cue.
+ * <b>JFrame</b> class. Basically, it draws a symbolic
+ * pool table (with cushion rails and pockets) to
+ * screen on which sixteen balls and a pool cue.
+ * Much of this class handles the drawing of the
+ * JFrame-derived object referenced by the variable
+ * entitled "pool."
  * @see javax.swing.JFrame
  */
 public class Pool extends javax.swing.JFrame
 {
-    private static final int DEFAULT_FPS = 30;  // the frame rate
+    private static final int DEFAULT_FPS = 60;  // the frame rate
     private static long period;
 
 
@@ -35,7 +38,7 @@ public class Pool extends javax.swing.JFrame
      * the operations set to occur on a 'resume.'
      * @param e event delegate of the heavyweight AWT system.
      */
-    public void windowActivated(java.awt.event.WindowEvent e)
+    public void windowActivated( java.awt.event.WindowEvent e )
     {
         ((PoolPanel)poolGame).resumeGame();
 
@@ -47,7 +50,7 @@ public class Pool extends javax.swing.JFrame
      * system of a "pause" being triggered by the player.
      * @param e event delegate of the AWT system 
      */
-    public void windowDeactivated(java.awt.event.WindowEvent e)
+    public void windowDeactivated( java.awt.event.WindowEvent e )
     {
         ((PoolPanel)poolGame).pauseGame();
 
@@ -57,7 +60,7 @@ public class Pool extends javax.swing.JFrame
     /**
      * @param e Event delegate
      */
-    public void windowDeiconified(java.awt.event.WindowEvent e)
+    public void windowDeiconified( java.awt.event.WindowEvent e )
     {
         ((PoolPanel)poolGame).resumeGame();
 
@@ -67,7 +70,7 @@ public class Pool extends javax.swing.JFrame
     /**
      * @param e Event delegate
      */
-    public void windowIconified(java.awt.event.WindowEvent e)
+    public void windowIconified( java.awt.event.WindowEvent e )
     {
         ((PoolPanel)poolGame).pauseGame();
 

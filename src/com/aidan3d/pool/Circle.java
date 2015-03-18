@@ -3,26 +3,28 @@ package com.aidan3d.pool;
 import math.geom2d.Vector2D;
 
 /**
- * A circle defined by a center (a 2d Euclidan vector)
- * and a radius. Includes methods for detecting collisions
- * with other <b>Circle</b> objects and with <b>Line</b> objects.
+ * A Circle object is defined by its center (a 2d
+ * Euclidian vector) and a radius (a double).
+ * Mass and velocity are properties we use for
+ * collision detection with other <b>Circle</b>
+ * objects and w <b>Line</b> objects.
  */
 public class Circle
 {
     protected Vector2D center;
     protected Vector2D velocity;            // We do some motion-related
                                             // collision detection, and
-                                            // this may be handy
+                                            // this may be handy...
     protected double radius;
-    protected double mass;
+    protected double mass;                  // ...as may this
 
 
     /**
-     * The two-argument constrctor.
+     * The two-argument constructor.
      * @param obj - the circle's center in 2d
-     * Euclidan vector form (i.e. a <b>Vector2D</b> object)
+     * Euclidian vector form (i.e. a <b>Vector2D</b> object)
      * @param r  - the circle's radius
-     * @see Math.geom2d.Vector2D
+     * @see math.geom2d.Vector2D
      */
     public Circle( Vector2D obj, double r, double m )
     {
@@ -97,8 +99,12 @@ public class Circle
         double threshold = 0.0F;                // the sum of the radii of
                                                 // the current Circle and
                                                 // the encroaching circle.
-        
-        
+
+        double timeToReachCenter = 0.0F;        // Total journey time from
+                                                // the neignbor's current
+                                                // location
+
+
         // Run a thread from the current Circle
         // object to it's "detected" potential
         // incurrer (the Circle object referred
@@ -110,15 +116,15 @@ public class Circle
         // current Circle object with its  neigbor.
         pathToEnemy = center.minus( enemy.center );
 
-        
+
         // Draw a line in the virtual sand ( mark the baize).
         threshold = (radius + enemy.radius );
         
         if ( pathToEnemy.norm() < threshold )
             underAttack = true;
 
-        // Let the call know that we've been struck by
-        // a Circle object!
+        // Let the call know that we've been struck
+        // by a Circle object!
         return underAttack;
 
     } // end method circleCircleCollision
@@ -126,24 +132,38 @@ public class Circle
 
     /**
      * Under our "reverse movement" model, the Line
-     * object is closing in on the current Cirle object
-     * @param enemy - a Line object rapoidly traveling
+     * object is closing in on the current Circle object
+     * @param enemy - a Line object rapidly traveling
      * through space towards us
      * @return  true if this Circle object has
      * been collided with by a Line object
      */
-    public boolean lineCircleCollision( Line enemy )
+    public boolean circleLineCollision( Line enemy )
     {
-        boolean underAttack = false;
-                
+        boolean underAttack = false;  // A signal flag, raised if
+                                      // theis Circle object has
+                                      // a visitor within its
+                                      // airpsace.
+
+ 
+        // Get the length in the horizontal
+        // direction.
+        double horDistanceToEnemy = Math.abs( enemy.getStart().x() - ( center.x() ) );
+        
+        if ( horDistanceToEnemy < radius )
+        {
+            underAttack = true;
+        
+        } // end if-then
         
         return underAttack;
-    }
+        
+    } // end method circleLineCollision
     
     
     /**
      * A Circle object has hit the current one.
-     * @param obj the incurring Circle
+     * @param obj the incurring Circle object
      * @return 
      */
     public boolean isHitByCircle( Circle obj )
@@ -156,7 +176,7 @@ public class Circle
             status = true;
             System.out.printf("%s has been HIT by %s%n", this.toString(), obj.toString() );
 
-        } // end inner if-then
+        } // end if-then
         
         return status;
 
@@ -164,10 +184,36 @@ public class Circle
     
     
     /**
+     * A Line object has hit the current
+     * Circle object.
+     * @param obj the marauding Line object
+     * @return 
+     */
+    public boolean isHitByLine( Line obj )
+    {
+        boolean status = false;
+        
+        // Now, lets look for a strike by
+        // a Line object!
+        if ( circleLineCollision( obj ) )
+        {
+            status = true;
+            System.out.printf( "%s has been HIT by a Line", this.toString() );
+        
+        } // end if-then
+        
+        return status;
+        
+    } // end method isHitByLine
+    
+    
+    /**
      *  Override this method in the subclass
      *  to move your Circle-derived object.
      */
-    public void move() {}
+    public void move()
+    {
+    }
 
 
     /**
@@ -175,5 +221,8 @@ public class Circle
      * update the position of your Circle-derived
      * object.
      */
-    public void update() {}
-}
+    public void update()
+    {
+    }
+
+} //end class Circle
