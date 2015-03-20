@@ -65,6 +65,18 @@ public class Line
         return normalDirection;
     }
 
+    /**
+     * Send out a 2d=Euclidan=vector representation
+     * of this Line object.
+     * @return the Vector2D object representing this
+     * Line object
+     */
+    public Vector2D getVector()
+    {
+        return vector;
+        
+    } // end method getVector
+ 
 
     /**
      * Send out a Vector2D object (a

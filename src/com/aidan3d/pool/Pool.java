@@ -32,6 +32,23 @@ public class Pool extends javax.swing.JFrame
 
     } // end no-argument constructor
 
+    
+    /**
+     * This method is a "setter" for the <b>GamePanel</b>-derived
+     * <b>PoolPanel</b> class object to call once it has gotten going.<br>
+     * This method will be fed the <i>"getTimeSpentInGame"</i> <b>GamePanel</b> property
+     * by the calling PoolPanel object<br> <i>(which inherited
+     * the property from the <b>GamePanel</b> class in the first
+     * place).</i>
+     * @param t the time which has elapsed since the game began
+     */
+    public void setTimeSpent( long t )
+    {
+        jtTime.setText( "Time spent: " + t + "  secs." );
+
+
+    } // end method setTimeSpent
+
 
     /**
      * If the game has been paused, this method handles
@@ -101,6 +118,7 @@ public class Pool extends javax.swing.JFrame
     {
 
         poolGame = new com.aidan3d.pool.PoolPanel(this, period*1000000L);
+        jtTime = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("A Simple Pool Game");
@@ -114,24 +132,30 @@ public class Pool extends javax.swing.JFrame
         );
         poolGameLayout.setVerticalGroup(
             poolGameLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 588, Short.MAX_VALUE)
+            .add(0, 575, Short.MAX_VALUE)
         );
+
+        jtTime.setText("jTextField1");
+        jtTime.setName(""); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(poolGame, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jtTime)
+                    .add(poolGame, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(poolGame, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(poolGame, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jtTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -208,6 +232,7 @@ public class Pool extends javax.swing.JFrame
     } // end main
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField jtTime;
     private javax.swing.JPanel poolGame;
     // End of variables declaration//GEN-END:variables
 

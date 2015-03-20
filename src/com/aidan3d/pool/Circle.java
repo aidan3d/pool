@@ -148,9 +148,10 @@ public class Circle
  
         // Get the length in the horizontal
         // direction.
-        double horDistanceToEnemy = Math.abs( enemy.getStart().x() - ( center.x() ) );
+        Vector2D pathToEnemy = enemy.getVector().minus( center );
+        System.out.printf("Distance to cushion (%s): %f.%n", enemy.toString(), pathToEnemy.norm() );
         
-        if ( horDistanceToEnemy < radius )
+        if ( ( enemy.getVector().angle() - pathToEnemy.angle() ) <  Math.asin( radius / pathToEnemy.norm() ))
         {
             underAttack = true;
         
@@ -198,7 +199,7 @@ public class Circle
         if ( circleLineCollision( obj ) )
         {
             status = true;
-            System.out.printf( "%s has been HIT by a Line", this.toString() );
+            System.out.printf( "%s has been HIT by a Line. %n", this.toString() );
         
         } // end if-then
         

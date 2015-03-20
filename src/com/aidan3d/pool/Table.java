@@ -136,7 +136,7 @@ public class Table
         createBalls();
         
         // Let's set the cue ball in motion!
-        balls.get(0).setVelocity( new Vector2D( -1.0, 1.0) ); // 1 pixel per frame
+        balls.get(0).setVelocity( new Vector2D( -1.0, 0.5) ); // 1 pixel per frame
         
         // Fake out the "moving" tool!
         moving = true;
@@ -730,7 +730,7 @@ public class Table
     {
         // Check for collisions between
         // all balls in play.
-        // collisionsWithBalls();
+        collisionsWithBalls();
         
         
         // Check for collisions between

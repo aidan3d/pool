@@ -46,8 +46,18 @@ public class PoolPanel extends GamePanel
 
 
 
-    private final Font wpfont;
+    private final Font poolFont;
     private final FontMetrics metrics;
+    
+    private final Pool poolTop;                       // Refers to the
+                                                      // "calling"
+                                                      // application
+                                                      // object (a
+                                                      // Pool object);
+                                                      // a Pool object
+                                                      // has-a PoolPanel
+                                                      // object (composition)
+
     private final Table poolTable;
     
     long poolGameStartTime;
@@ -89,8 +99,11 @@ public class PoolPanel extends GamePanel
             TABLE_WIDTH, BALL_RADIUS,  POCKET_MULTIPLIER, JAW_MULTIPLIER, BED_FRICTION );
         
         // Set up the message font.
-        wpfont = new Font( "SansSerif", Font.BOLD, 12 );
-        metrics = this.getFontMetrics( wpfont );
+        poolFont = new Font( "SansSerif", Font.BOLD, 12 );
+        metrics = this.getFontMetrics(poolFont );
+        
+        poolTop = poolGame;                           // A copy of "what we're
+                                                      // sending" to the "super"
 
     } // end two-argument constructor
 
@@ -121,7 +134,7 @@ public class PoolPanel extends GamePanel
             dbg.fillRect( 0, 0, super.getWidth(), super.getHeight() );
 
             dbg.setColor( Color.green );
-            dbg.setFont( wpfont );
+            dbg.setFont(poolFont );
 
             // Report the average FPS and UPS at top left.
             dbg.drawString( "Average FPS/UPS: " + df.format( getAverageFPS() ) + "/"
@@ -145,6 +158,11 @@ public class PoolPanel extends GamePanel
     @Override
     public void customizeGameUpdate()
     {
+        // Set the elapsed time since gameplay
+        // commenced (grab it from the "super").
+        poolTop.setTimeSpent(  super.getTimeSpentInGame() );
+
+
         // Check whether anything actually needs
         // to be done, based on all balls having
         // stopped moving
