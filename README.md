@@ -1,2 +1,2 @@
 # pool
-A simple pool game.
+A simple Java pool game.
